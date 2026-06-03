@@ -1011,8 +1011,12 @@ if($total_calls>0) {
                 echo "<td>".$missed[$idx][$chan]."</td>\n";
                 echo "<td align=right>".$percent_missed."</td>\n";
                 echo "<td>$bill_print</td>\n";
-                $percentage_bill = $val * 100 / $total_bill;
-                $percentage_bill = number_format($percentage_bill,2);
+                if($total_bill>0) {
+                    $percentage_bill = $val * 100 / $total_bill;
+                    $percentage_bill = number_format($percentage_bill,2);
+                } else {
+                    $percentage_bill = "0";
+                }
                 echo "<td>$percentage_bill "._('%')."</td>\n";
                 echo "<td>$avg_duration_print</td>\n";
                 echo "<td>$ring_time "._('secs')."</td>\n";

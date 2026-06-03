@@ -232,7 +232,7 @@ function asternic_getrecords( $MYVARS ,$appconfig) {
         die($res->getMessage());
     }
 
-    $ftype = $_REQUEST['type'];
+    $ftype = isset($_REQUEST['type']?$_REQUEST['type']:'');
     $fdisplay = $_REQUEST['display'];
     $ftab = $gtype;
 
