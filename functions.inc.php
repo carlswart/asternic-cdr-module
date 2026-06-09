@@ -363,7 +363,8 @@ class PDF extends FPDF
         //Select Arial italic 8
         $this->SetFont('Arial','I',8);
         //Print centered page number
-        $this->Cell(0,10,$lang["$language"]['page'].' '.$this->PageNo(),0,0,'C');
+        $pageText = (isset($lang[$language]['page']) ? $lang[$language]['page'] : 'Page') . ' ' . $this->PageNo();
+        $this->Cell(0,10,$pageText,0,0,'C');
     }
 
     function Cover($cover) {
