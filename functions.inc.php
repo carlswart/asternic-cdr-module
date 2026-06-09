@@ -232,8 +232,8 @@ function asternic_getrecords( $MYVARS ,$appconfig) {
         die($res->getMessage());
     }
 
-    $ftype = $_REQUEST['type'];
-    $fdisplay = $_REQUEST['display'];
+    $ftype = $_REQUEST['type'] ?? 'tool';
+    $fdisplay = $_REQUEST['display'] ?? 'asternic_cdr';
     $ftab = $gtype;
 
     $cont=0;
