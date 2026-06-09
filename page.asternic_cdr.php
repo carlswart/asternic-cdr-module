@@ -459,6 +459,7 @@ function asternic_distribution($appconfig) {
                     if(!isset($num[$chann][$date][$hour])) { $num[$chann][$date][$hour]=0;}
                     $numcolor = intval(($dur[$chann][$date][$hour]/60)/10);
                     if((intval($dur[$chann][$date][$hour]/60))==0) { $numcolor=6; }
+                    if($numcolor > 6) { $numcolor = 6; }
                     $minutes_this_hour = intval($dur[$chann][$date][$hour]/60);
                     $total_day+=$minutes_this_hour;
                     echo "<td bgcolor='$colorete[$numcolor]'>$minutes_this_hour</td>";
