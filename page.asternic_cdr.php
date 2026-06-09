@@ -939,6 +939,7 @@ if($total_calls>0) {
                                _('Calls'),
                                _('Incoming'),
                                _('Outgoing'),
+                               _('Completed'),
                                _('Missed'),
                                _('Percent'),
                                _('Bill secs'),
@@ -947,7 +948,7 @@ if($total_calls>0) {
                                _('Ring Time'),
                                _('Avg. Ring')
             );
-            $width_pdf=array(35,15,10,10,15,15,25,20,20,20,20);
+            $width_pdf=array(35,15,10,10,15,15,15,25,20,20,20,20);
             $title_pdf=$rep_title;
 
            $contador=0;

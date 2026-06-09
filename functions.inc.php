@@ -412,7 +412,9 @@ class PDF extends FPDF
         foreach($data as $row) {
             $contador=0;
             foreach($row as $valor) {
-                $this->Cell($w[$contador],6,$valor,'LR',0,'C',$fill);
+                if(isset($w[$contador])) {
+                    $this->Cell($w[$contador],6,$valor,'LR',0,'C',$fill);
+                }
                 $contador++;
             }
             $this->Ln();
