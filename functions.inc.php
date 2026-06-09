@@ -106,40 +106,6 @@ type: 'bar',
 <?php
 }
 
-function swf_bar_old($values,$width,$height,$divid,$stack) {
-    global $config;
-
-    if ($stack==1) {
-        $chart = "images/barstack.swf";
-    } else {
-        $chart = "images/bar.swf";
-    }
-    $return = "<div id='$divid'>\n";
-    $return.= "</div>\n";
-    $values = html_entity_decode($values);
-    $return.= "<script type='text/javascript'>\n";
-    $return.='$(document).ready(function() {'."\n";
-
-    $variables = preg_split("/&/",$values);
-    if(isset($config['no_animation'][''])) {
-        $variables[] = "noanimate=1";
-    }
-
-    $return .= "var flashvars = {\n";
-    $param = Array();
-    foreach($variables as $deauna) {
-        $pedazos = preg_split("/=/",$deauna);
-        $param[]="'$pedazos[0]': '$pedazos[1]'";
-    }
-    $texti = implode(",\n",$param);
-    $return.=$texti;
-    $return.=" };\n";
-
-    $return.= "swfobject.embedSWF('$chart', '$divid', '$width', '$height', '9.0.0', '#336699', flashvars, {wmode:'transparent'});\n";
-    $return.= "});</script>\n";
-    echo $return;
-}
-
 function print_exports($header_pdf,$data_pdf,$width_pdf,$title_pdf,$cover_pdf,$appconfig) {
 
     $head_serial  = serialize($header_pdf);

@@ -18,6 +18,7 @@
 | `75840ed` | **PATCH-005** — Replace deprecated `each()` with `foreach()` in FPDF |
 | `e1e8507` | **PATCH-006** — Cap color index in Distribution heatmap |
 | `PATCH-007` | **PATCH-007** — Escape unfiltered superglobal output (XSS hardening) |
+| `PATCH-008` | **PATCH-008** — Remove dead Adobe Flash `swf_bar_old()` function |
 
 ---
 
@@ -150,6 +151,26 @@ Multiple locations echo `$_SERVER['REQUEST_URI']` and iterate `$_REQUEST` direct
 
 ---
 
+## PATCH-008: Remove Dead Adobe Flash `swf_bar_old()` — `functions.inc.php`
+
+### Problem
+
+The codebase retains `swf_bar_old()`, a function that renders charts via Adobe Flash (`.swf` files) using `swfobject.embedSWF()`. Adobe Flash Player reached end-of-life in December 2020 and is blocked by all modern browsers. The referenced `images/bar.swf` and `images/barstack.swf` files do not even exist in the module's `images/` directory.
+
+### Root cause
+
+This is legacy code from the original Asternic CDR v1.x era (pre-HTML5). The modern replacement `swf_bar()` (right above it in the same file) uses Chart.js and `<canvas>` — that is the function actually called throughout `page.asternic_cdr.php`. `swf_bar_old()` has **zero callers**.
+
+### Side benefit
+
+Removing this dead function also eliminates the `html_entity_decode()` deprecation warning at `functions.inc.php:119` (PHP 8.1 requires an explicit encoding argument). That call was inside `swf_bar_old()`.
+
+### Fix applied
+
+Deleted the entire `swf_bar_old()` function (32 lines).
+
+---
+
 ## Known Remaining Issues (TODO)
 
 ### 1. Unguarded `$_REQUEST` / `$_POST` / `$_GET` accesses (HIGH PRIORITY → now MEDIUM)
@@ -207,7 +228,7 @@ The parsing still works because it splits on the first `-`, but:
 | `mktime()` | `functions.inc.php:16` | Still works; `DateTime` class preferred |
 | `preg_split()` for dates | `functions.inc.php:15` | Works; `DateTime::createFromFormat()` preferred |
 | `DB_FETCHMODE_ASSOC` | Multiple | PEAR DB is deprecated in modern PHP; FreePBX 17 uses PDO wrappers |
-| `html_entity_decode()` without encoding arg | `functions.inc.php:119` | Deprecated in PHP 8.1 |
+| ~~`html_entity_decode()` without encoding arg~~ | ~~`functions.inc.php:119`~~ | ~~Deprecated in PHP 8.1~~ — **REMOVED** in PATCH-008 (dead Flash code) |
 | `define()` without case-insensitive arg | n/a | Not used |
 
 ### 5. FreePBX 17 `fwconsole reload` / module hooks (LOW PRIORITY)
