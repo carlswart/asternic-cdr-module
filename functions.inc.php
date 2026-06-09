@@ -285,7 +285,9 @@ function asternic_getrecords( $MYVARS ,$appconfig) {
                 $detail[$campo].="<div class='playicon' title='"._('Play')."' id='play".$uni."'  style='float:left;'>";
                 $detail[$campo].="<img src='images/blank.gif' alt='pixel' height='16' width='16' border='0'>";
                 $detail[$campo].="</div></a>";
-                $detail[$campo].="<a href=\"javascript:void(0); return false;\" onclick='javascript:downloadVmail(\"".$actualfile."\",\"play".$uni."\",\"$ftype\",\"$fdisplay\",\"$ftab\"); return false;'>";
+                $safe_ftype = htmlspecialchars($ftype, ENT_QUOTES, 'UTF-8');
+                $safe_fdisplay = htmlspecialchars($fdisplay, ENT_QUOTES, 'UTF-8');
+                $detail[$campo].="<a href=\"javascript:void(0); return false;\" onclick='javascript:downloadVmail(\"".$actualfile."\",\"play".$uni."\",\"$safe_ftype\",\"$safe_fdisplay\",\"$ftab\"); return false;'>";
                 $detail[$campo].="<div class='downicon' title='"._('Download')."' id='dload".$uni."'  style='float:left;'>";
                 $detail[$campo].="<img src='images/blank.gif' alt='pixel' height='16' width='16' border='0'>";
                 $detail[$campo].="</div></a>";
@@ -331,7 +333,7 @@ class PDF extends FPDF
         //Select Arial italic 8
         $this->SetFont('Arial','I',8);
         //Print centered page number
-        $pageText = (isset($lang[$language]['page']) ? $lang[$language]['page'] : 'Page') . ' ' . $this->PageNo();
+        $pageText = (isset($lang[$language]) ? ($lang[$language]['page'] ?? 'Page') : 'Page') . ' ' . $this->PageNo();
         $this->Cell(0,10,$pageText,0,0,'C');
     }
 

@@ -489,6 +489,7 @@ function asternic_distribution($appconfig) {
                 // echo "$hour ".intval($dur[$chann][$date][$hour]/60)." - ".$num[$chann][$date][$hour]."<BR>" ;
                 $numcolor = intval(($dur[$chann][$date][$hour]/60)/10);
                 if((intval($dur[$chann][$date][$hour]/60))==0) { $numcolor=6; }
+                if($numcolor > 6) { $numcolor = 6; }
                 $minutes_this_hour = intval($dur[$chann][$date][$hour]/60);
                 $total_day+=$minutes_this_hour;
                 echo "<td bgcolor='$colorete[$numcolor]'>$minutes_this_hour</td>";
@@ -1013,8 +1014,12 @@ if($total_calls>0) {
                 echo "<td>".$missed[$idx][$chan]."</td>\n";
                 echo "<td align=right>".$percent_missed."</td>\n";
                 echo "<td>$bill_print</td>\n";
-                $percentage_bill = $val * 100 / $total_bill;
-                $percentage_bill = number_format($percentage_bill,2);
+                if($total_bill>0) {
+                    $percentage_bill = $val * 100 / $total_bill;
+                    $percentage_bill = number_format($percentage_bill,2);
+                } else {
+                    $percentage_bill = "0";
+                }
                 echo "<td>$percentage_bill "._('%')."</td>\n";
                 echo "<td>$avg_duration_print</td>\n";
                 echo "<td>$ring_time "._('secs')."</td>\n";
