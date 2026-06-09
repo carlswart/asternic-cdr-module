@@ -12,6 +12,12 @@
 |--------|-------------|
 | `8b6b01d` | **Baseline** — Unmodified upstream v1.6.6 (Oct 2024) |
 | `6b54b0b` | **PATCH-001** — PHP 8 undefined array key in `getrecords` handler |
+| `a09b4b6` | **PATCH-002** — CEL + disk fallback for missing `recordingfile` paths |
+| `6978961` | **PATCH-003** — Null array access in PDF `Footer()` |
+| `4f4cbfd` | **PATCH-004** — PDF Combined report column mismatch |
+| `75840ed` | **PATCH-005** — Replace deprecated `each()` with `foreach()` in FPDF |
+| `e1e8507` | **PATCH-006** — Cap color index in Distribution heatmap |
+| `PATCH-007` | **PATCH-007** — Escape unfiltered superglobal output (XSS hardening) |
 
 ---
 
@@ -26,9 +32,9 @@
 | **Drill-down detail table** | ✅ **FIXED** | PATCH-001 resolves `type`/`display` missing keys |
 | **Recording icons in detail table** | ✅ **FIXED** | PATCH-002 adds CEL + disk fallback when `recordingfile` is empty (FreePBX 17 outgoing) |
 | Call recording playback | ⚠️ Likely OK | Uses Howler.js + `cel` session data |
-| **PDF export** | ✅ **FIXED** | PATCH-003 fixes Footer() null access; PATCH-004 fixes Combined report column mismatch |
+| **PDF export** | ✅ **FIXED** | PATCH-003 fixes Footer() null access; PATCH-004 fixes Combined report column mismatch; PATCH-005 replaces deprecated `each()` in FPDF |
 | CSV export | ✅ Likely OK | Simple string output |
-| Distribution / heatmaps | ❓ Unknown | Chart.js rendering OK; PHP queries need audit |
+| **Distribution / heatmaps** | ✅ **FIXED** | PATCH-006 caps color index overflow; PATCH-007 escapes unfiltered superglobals |
 | Post-processing script (`record_runafter.pl`) | ⚠️ Legacy | Perl script works independently of PHP |
 
 ---
@@ -123,9 +129,30 @@ These are safe canonical defaults for the module.
 
 ---
 
+## PATCH-007: Escape Unfiltered Superglobal Output — `functions.inc.php` + `page.asternic_cdr.php`
+
+### Problem
+
+Multiple locations echo `$_SERVER['REQUEST_URI']` and iterate `$_REQUEST` directly into HTML / JavaScript without escaping. This creates XSS vulnerabilities if a malformed URL or crafted request parameter contains quotes or HTML metacharacters.
+
+### Locations fixed
+
+| File | Line(s) | Before | After |
+|------|---------|--------|-------|
+| `functions.inc.php` | 156-161 | `$complete_self = $_SERVER['REQUEST_URI'];` echoed raw into `<form action="...">`; `$_REQUEST` keys/values echoed raw into hidden inputs | Wrapped with `htmlspecialchars(..., ENT_QUOTES, 'UTF-8')` |
+| `functions.inc.php` | 347-348 | `$complete_self` echoed raw into download form `action` | Wrapped with `htmlspecialchars(..., ENT_QUOTES, 'UTF-8')` |
+| `page.asternic_cdr.php` | 1002-1005 | `$complete_self` echoed raw into JS `onclick` attribute | Wrapped with `htmlspecialchars(..., ENT_QUOTES, 'UTF-8')` |
+| `page.asternic_cdr.php` | 1408-1413 | Same as above for outgoing/incoming report rows | Wrapped with `htmlspecialchars(..., ENT_QUOTES, 'UTF-8')` |
+
+### Note on `page.asternic_cdr.php:32`
+
+`$_POST['List_Extensions']` was already guarded by `isset()` in the current codebase; the earlier session note was a false positive.
+
+---
+
 ## Known Remaining Issues (TODO)
 
-### 1. Unguarded `$_REQUEST` / `$_POST` / `$_GET` accesses (HIGH PRIORITY)
+### 1. Unguarded `$_REQUEST` / `$_POST` / `$_GET` accesses (HIGH PRIORITY → now MEDIUM)
 
 The codebase was written for PHP 5/7 where missing array keys silently returned `null`. PHP 8+ throws warnings. Whoops turns those into exceptions. A systematic audit is needed.
 
@@ -133,16 +160,17 @@ The codebase was written for PHP 5/7 where missing array keys silently returned 
 
 | File | Line(s) | Code | Risk |
 |------|---------|------|------|
-| `page.asternic_cdr.php` | 32-34 | `$_POST['List_Extensions']` | Called on every page load; may be absent |
+| `page.asternic_cdr.php` | 32-34 | `$_POST['List_Extensions']` | **Already guarded by `isset()` — safe** |
 | `page.asternic_cdr.php` | 45-56 | `$_POST['start']`, `$_POST['end']` | Uses `isset()` — **safe** |
 | `page.asternic_cdr.php` | 104-119 | `$_REQUEST['action']` | Uses `isset()` — **safe** |
 | `page.asternic_cdr.php` | 117 | `$_REQUEST['file']` | Uses `isset()` — **safe** |
 | `page.asternic_cdr.php` | 176+ | `$_GET['tab']` | Uses `isset()` — **safe** |
-| `functions.inc.php` | ~235 | `$_REQUEST['type']` | ✅ **FIXED** |
-| `functions.inc.php` | ~236 | `$_REQUEST['display']` | ✅ **FIXED** |
+| `functions.inc.php` | ~235 | `$_REQUEST['type']` | ✅ **FIXED (PATCH-001)** |
+| `functions.inc.php` | ~236 | `$_REQUEST['display']` | ✅ **FIXED (PATCH-001)** |
+| `functions.inc.php` | 156-161 | `$_REQUEST` iteration | ✅ **FIXED (PATCH-007)** |
 | `download.php` | 2 | `$_REQUEST['file']` | Uses `isset()` + `die()` — **safe** |
 
-**Recommendation:** Wrap every remaining bare `$_REQUEST['key']`, `$_GET['key']`, `$_POST['key']` access with `$_REQUEST['key'] ?? ''` or `isset()` checks.
+**Recommendation:** All directly accessed superglobals are now guarded or escaped. No further action required unless new execution paths are discovered.
 
 ### 2. FPDF library PHP 8 compatibility (MEDIUM PRIORITY)
 
@@ -293,4 +321,4 @@ Original copyright: Nicolás Gudiño / Asternic.net
 
 ---
 
-*Last updated: 2026-06-07*
+*Last updated: 2026-06-09*

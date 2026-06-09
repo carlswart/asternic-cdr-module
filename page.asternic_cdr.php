@@ -999,7 +999,7 @@ if($total_calls>0) {
                 }
                 $percent_missed = number_format($percent_missed,0)." "._('%');
 
-                $complete_self = $_SERVER['REQUEST_URI'];
+                $complete_self = htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8');
                 echo "<tr $odd>\n";
 
                 echo "<td style='text-align: left;'><a style='cursor:pointer;' onclick=\"javascript:getRecords('$chan','${appconfig['start']}','${appconfig['end']}','combined','$complete_self');\">";
@@ -1405,7 +1405,7 @@ if($total_calls>0) {
                 }
                 $percent_missed = number_format($percent_missed,0)." "._('%');
 
-                $complete_self = $_SERVER['REQUEST_URI'];
+                $complete_self = htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8');
                 //$complete_self .= "&chan=$chan&startd=$start&endd=$end&direction=$typerecord";
                 echo "<tr $odd>\n";
 

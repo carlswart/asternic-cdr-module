@@ -153,11 +153,13 @@ function print_exports($header_pdf,$data_pdf,$width_pdf,$title_pdf,$cover_pdf,$a
     $title_serial = rawurlencode($title_serial);
     $cover_serial = rawurlencode($cover_serial);
 
-    $complete_self = $_SERVER['REQUEST_URI'];
+    $complete_self = htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8');
     echo "<br/><form method='post' action='$complete_self'>\n";
     foreach($_REQUEST as $kkey=>$vval) {
         if(!is_array($vval)) {
-            echo "<input type='hidden' name='$kkey' value='".$vval."' />\n";
+            $safe_key = htmlspecialchars($kkey, ENT_QUOTES, 'UTF-8');
+            $safe_val = htmlspecialchars($vval, ENT_QUOTES, 'UTF-8');
+            echo "<input type='hidden' name='$safe_key' value='$safe_val' />\n";
         }
     }
     echo "<input type='hidden' name='action' value='export' />\n";
@@ -344,7 +346,7 @@ function asternic_getrecords( $MYVARS ,$appconfig) {
     echo "<tbody>".$detail[$channel]."</tbody>\n";
     echo "</table>\n";
 
-    $complete_self = $_SERVER['REQUEST_URI'];
+    $complete_self = htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8');
     echo "<form id='downloadform' method='get' action='$complete_self'><input type=hidden name='file' id='downloadfile' value=''><input type=hidden name='action' value='download'><input type='hidden' name='type' id='dtype' value=''><input type='hidden' id='idisplay' name='display' value=''> <input type='hidden' id='itab' name='tab' value=''></form>";
 
 }
