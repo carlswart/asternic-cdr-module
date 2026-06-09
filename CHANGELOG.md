@@ -26,7 +26,7 @@
 | **Drill-down detail table** | ✅ **FIXED** | PATCH-001 resolves `type`/`display` missing keys |
 | **Recording icons in detail table** | ✅ **FIXED** | PATCH-002 adds CEL + disk fallback when `recordingfile` is empty (FreePBX 17 outgoing) |
 | Call recording playback | ⚠️ Likely OK | Uses Howler.js + `cel` session data |
-| PDF export | ❓ Unknown | FPDF may need PHP 8 compat updates |
+| **PDF export** | ✅ **FIXED** | PATCH-003 resolves null array access in PDF::Footer() |
 | CSV export | ✅ Likely OK | Simple string output |
 | Distribution / heatmaps | ❓ Unknown | Chart.js rendering OK; PHP queries need audit |
 | Post-processing script (`record_runafter.pl`) | ⚠️ Legacy | Perl script works independently of PHP |
@@ -52,6 +52,35 @@ Triple-fallback logic in `functions.inc.php:297-313`:
 3. **Disk search** — `glob("/var/spool/asterisk/monitor/YYYY/MM/DD/*{uniqueid}.wav")` (catches any orphaned recording)
 
 This is a pragmatic workaround that does not require changing FreePBX CDR backend configuration.
+
+---
+
+## PATCH-003: PDF Export Crash — `functions.inc.php`
+
+### Problem
+
+Clicking the PDF export button on any report triggers a Whoops exception:
+
+```
+Whoops\Exception\ErrorException (E_WARNING)
+Trying to access array offset on value of type null
+/var/www/html/admin/modules/asternic_cdr/functions.inc.php:366
+```
+
+### Root cause
+
+`PDF::Footer()` references `$lang[$language]['page']` as `global` variables. These are not defined in FreePBX 17's execution context, so `$lang` is `null`. PHP 8 throws a warning for array offset access on null, which Whoops converts to an exception before the PDF can finish rendering.
+
+### Fix applied
+
+Line 366 in `functions.inc.php`:
+
+```php
+$pageText = (isset($lang[$language]['page']) ? $lang[$language]['page'] : 'Page') . ' ' . $this->PageNo();
+$this->Cell(0,10,$pageText,0,0,'C');
+```
+
+Falls back to the English word "Page" if the locale globals are missing.
 
 ---
 
