@@ -24,11 +24,34 @@
 | Outgoing / Incoming reports | ⚠️ Needs audit | Multiple unguarded `$_REQUEST` accesses |
 | Combined reports | ⚠️ Needs audit | Same risk class as above |
 | **Drill-down detail table** | ✅ **FIXED** | PATCH-001 resolves `type`/`display` missing keys |
+| **Recording icons in detail table** | ✅ **FIXED** | PATCH-002 adds CEL + disk fallback when `recordingfile` is empty (FreePBX 17 outgoing) |
 | Call recording playback | ⚠️ Likely OK | Uses Howler.js + `cel` session data |
 | PDF export | ❓ Unknown | FPDF may need PHP 8 compat updates |
 | CSV export | ✅ Likely OK | Simple string output |
 | Distribution / heatmaps | ❓ Unknown | Chart.js rendering OK; PHP queries need audit |
 | Post-processing script (`record_runafter.pl`) | ⚠️ Legacy | Perl script works independently of PHP |
+
+---
+
+## PATCH-002: Recording Icons Missing for Outgoing Calls — `functions.inc.php`
+
+### Problem
+
+FreePBX 17 does not populate the `recordingfile` column in `asteriskcdrdb.cdr` for outgoing calls. The module's detail table shows no play/download icons even when recordings exist on disk (`/var/spool/asterisk/monitor/YYYY/MM/DD/out-*.wav`).
+
+### Root cause
+
+The CDR backend in FreePBX 17 stores recording paths via CEL (Channel Event Log) for incoming calls, but leaves `recordingfile = NULL` for outgoing calls. The original module only checked `$row['recordingfile']`.
+
+### Fix applied
+
+Triple-fallback logic in `functions.inc.php:297-313`:
+
+1. **CDR column** — `$row['recordingfile']` (still works for incoming calls)
+2. **CEL session** — `$_SESSION['cel']['recordings'][$uniqueid]['file']` (FreePBX 17 internal cache)
+3. **Disk search** — `glob("/var/spool/asterisk/monitor/YYYY/MM/DD/*{uniqueid}.wav")` (catches any orphaned recording)
+
+This is a pragmatic workaround that does not require changing FreePBX CDR backend configuration.
 
 ---
 
