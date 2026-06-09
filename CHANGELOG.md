@@ -26,7 +26,7 @@
 | **Drill-down detail table** | ✅ **FIXED** | PATCH-001 resolves `type`/`display` missing keys |
 | **Recording icons in detail table** | ✅ **FIXED** | PATCH-002 adds CEL + disk fallback when `recordingfile` is empty (FreePBX 17 outgoing) |
 | Call recording playback | ⚠️ Likely OK | Uses Howler.js + `cel` session data |
-| **PDF export** | ✅ **FIXED** | PATCH-003 resolves null array access in PDF::Footer() |
+| **PDF export** | ✅ **FIXED** | PATCH-003 fixes Footer() null access; PATCH-004 fixes Combined report column mismatch |
 | CSV export | ✅ Likely OK | Simple string output |
 | Distribution / heatmaps | ❓ Unknown | Chart.js rendering OK; PHP queries need audit |
 | Post-processing script (`record_runafter.pl`) | ⚠️ Legacy | Perl script works independently of PHP |
