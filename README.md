@@ -66,13 +66,13 @@ The upstream v1.6.6 was released in October 2024 but was not fully tested agains
 1. Download the latest release `.tgz` from [Releases](../../releases)
 2. Copy to your FreePBX server:
    ```bash
-   scp asternic_cdr-1.6.6-fpbx17-patched.tgz root@freepbx:/tmp/
+   scp asternic_cdr-1.6.6-fpbx17-patched-v2.tgz root@freepbx:/tmp/
    ```
 3. Install via FreePBX CLI:
    ```bash
    ssh root@freepbx
    fwconsole ma delete asternic_cdr   # if older version exists
-   fwconsole ma installlocal /tmp/asternic_cdr-1.6.6-fpbx17-patched.tgz
+   fwconsole ma installlocal /tmp/asternic_cdr-1.6.6-fpbx17-patched-v2.tgz
    fwconsole reload
    ```
 
