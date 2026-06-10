@@ -1,18 +1,18 @@
 # README #
 
-This is the Asternic CDR IssabelPBX and FPBX Module
+This is the Asternic CDR IssabelPBX and FreePBX Module
 
 > **Community Fork Notice:** This fork (`carlswart/asternic-cdr-module`) contains **FreePBX 17 / PHP 8.2 compatibility patches** that are not yet merged upstream. If you are running FreePBX 14-16 with PHP 7, the original upstream version should work fine.
 
 ### What is this repository for? ###
 
-* Provides an alternative way to present CDR reports for Issabel and FPBX
+* Provides an alternative way to present CDR reports for Issabel and FreePBX
 
 ---
 
 ## FreePBX 17 / PHP 8 Compatibility
 
-The upstream v1.6.6 was released in October 2024 but was not fully tested against FreePBX 17's default environment (PHP 8.2, Whoops error handler, PJSIP channels, and the new CDR recording pipeline). This fork applies 8 patches to fix fatal errors, warnings, and missing functionality.
+The upstream v1.6.6 was released in October 2024 but was not fully tested against FreePBX 17's default environment (PHP 8.2, Whoops error handler, PJSIP channels, and the new CDR recording pipeline). This fork applies 12 patches to fix fatal errors, warnings, and missing functionality.
 
 ### What was broken
 
@@ -39,6 +39,13 @@ The upstream v1.6.6 was released in October 2024 but was not fully tested agains
 | **PATCH-006** | `e1e8507` | `page.asternic_cdr.php` | Cap color index in Distribution heatmap |
 | **PATCH-007** | `d779b70` | `functions.inc.php` + `page.asternic_cdr.php` | Escape `$_SERVER['REQUEST_URI']` and `$_REQUEST` loop output with `htmlspecialchars()` |
 | **PATCH-008** | `98d0882` | `functions.inc.php` | Remove dead Adobe Flash `swf_bar_old()` function |
+
+### PR Review patches
+
+- Restore `$total_bill>0` guard in Combined report (division-by-zero)
+- Sanitize `$ftype` / `$fdisplay` with `htmlspecialchars()` before JS interpolation
+- Apply `$numcolor` cap to 1-day distribution report block
+- Simplify PDF footer ternary with `??` (nested key, `isset()` guard on parent)
 
 ### Tested functionality
 
